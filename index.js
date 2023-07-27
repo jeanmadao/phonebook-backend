@@ -34,16 +34,22 @@ app.get('/api/persons', (request, response) => {
 
 app.post('/api/persons', (request, response) => {
   const body = request.body
-  console.log("POST")
   
   if (body.name && body.number) {
-    const person = {
-      name: body.name,
-      number: body.number,
-      id: generateId(),
+    const potentialPerson = persons.find(person => person.name === body.name)
+    if (!potentialPerson) {
+      const person = {
+        name: body.name,
+        number: body.number,
+        id: generateId(),
+      }
+      persons = persons.concat(person)
+      response.json(person)
+    } else {
+      response.status(409).json({
+        error: "name must be unique"
+      })
     }
-    persons = persons.concat(person)
-    response.json(person)
   } else {
     response.status(400).json({
       error: 'name and/or number missing'
