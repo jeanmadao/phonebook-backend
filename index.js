@@ -29,7 +29,10 @@ let persons = [
 const generateId = () => Math.floor(Math.random() * 100000)
 
 app.use(express.json())
-app.use(morgan('tiny'))
+
+morgan.token('data-sent', (req, res) => JSON.stringify(req.body))
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data-sent'))
 
 app.get('/api/persons', (request, response) => {
   response.json(persons)
