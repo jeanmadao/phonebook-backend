@@ -31,7 +31,6 @@ const generateId = () => Math.floor(Math.random() * 100000)
 app.use(express.json())
 
 morgan.token('data-sent', (req, res) => JSON.stringify(req.body))
-
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data-sent'))
 
 app.get('/api/persons', (request, response) => {
