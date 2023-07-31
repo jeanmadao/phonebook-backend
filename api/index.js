@@ -30,6 +30,7 @@ let persons = [
 const generateId = () => Math.floor(Math.random() * 100000)
 
 app.use(express.json())
+app.use(express.static('build'))
 app.use(cors())
 
 morgan.token('data-sent', (req, res) => JSON.stringify(req.body))
