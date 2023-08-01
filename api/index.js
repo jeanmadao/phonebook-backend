@@ -11,8 +11,8 @@ let persons = [
 
 const generateId = () => Math.floor(Math.random() * 100000)
 
-app.use(express.json())
 app.use(express.static('build'))
+app.use(express.json())
 app.use(cors())
 
 morgan.token('data-sent', (req, res) => JSON.stringify(req.body))
@@ -59,14 +59,17 @@ app.get('/api/persons/:id', (request, response) => {
       }
     })
     .catch(error => {
-      response.status(404).end()
+      console.log(error)
+      response.status(400).send({ error: 'malformed id' })
     })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  persons = persons.filter(person => person.id !== id)
-  response.status(204).end()
+  Person.findByIdAndRemove(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
 app.get('/info', (request, response) => {
