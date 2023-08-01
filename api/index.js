@@ -83,11 +83,14 @@ app.delete('/api/people/:id', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-  response.send(`
-    <div>Phonebook has info for ${people.length} people</div>
-    <br/>
-    <div>${new Date()}</div>
-  `)
+  Person.estimatedDocumentCount()
+    .then(count => {
+      response.send(`
+        <div>Phonebook has info for ${count} people</div >
+        <br/>
+        <div>${new Date()}</div>
+      `)
+    })
 })
 
 
