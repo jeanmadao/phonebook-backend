@@ -6,9 +6,6 @@ const Person = require('../models/person')
 
 const app = express()
 
-let people = [
-]
-
 app.use(express.static('build'))
 app.use(express.json())
 app.use(cors())
@@ -36,20 +33,13 @@ app.post('/api/people', (request, response) => {
   const body = request.body
 
   if (body.name && body.number) {
-    const potentialPerson = people.find(person => person.name === body.name)
-    if (!potentialPerson) {
-      const person = new Person({
-        name: body.name,
-        number: body.number
-      })
-      person.save().then(savedPerson => {
-        response.json(savedPerson)
-      })
-    } else {
-      response.status(409).json({
-        error: "name must be unique"
-      })
-    }
+    const person = new Person({
+      name: body.name,
+      number: body.number
+    })
+    person.save().then(savedPerson => {
+      response.json(savedPerson)
+    })
   } else {
     response.status(400).json({
       error: 'name and/or number missing'
@@ -65,6 +55,21 @@ app.get('/api/people/:id', (request, response, next) => {
       } else {
         response.status(404).end()
       }
+    })
+    .catch(error => next(error))
+})
+
+app.put('/api/people/:id', (request, response) => {
+  const body = request.body
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  }
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson)
     })
     .catch(error => next(error))
 })
