@@ -30,13 +30,13 @@ app.post('/api/persons', (request, response) => {
   if (body.name && body.number) {
     const potentialPerson = persons.find(person => person.name === body.name)
     if (!potentialPerson) {
-      const person = {
+      const person = new Person({
         name: body.name,
-        number: body.number,
-        id: generateId(),
-      }
-      persons = persons.concat(person)
-      response.json(person)
+        number: body.number
+      })
+      person.save().then(savedPerson => {
+        response.json(savedPerson)
+      })
     } else {
       response.status(409).json({
         error: "name must be unique"
