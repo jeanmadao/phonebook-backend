@@ -9,16 +9,16 @@ const app = express()
 app.use(express.static('build'))
 app.use(express.json())
 app.use(cors())
-morgan.token('data-sent', (req, res) => JSON.stringify(req.body))
+morgan.token('data-sent', (req) => JSON.stringify(req.body))
 app.use(morgan((tokens, req, res) => {
   return [
-    "Method: ", tokens.method(req, res), "\n",
-    "Path: ", tokens.url(req, res), "\n",
-    "Status: ", tokens.status(req, res), "\n",
-    "Content length: ", tokens.res(req, res, 'content-length'), "\n",
-    "Response time: ", tokens['response-time'](req, res), 'ms', "\n",
-    "Body: ", tokens['data-sent'](req, res), "\n",
-    "---"
+    'Method: ', tokens.method(req, res), '\n',
+    'Path: ', tokens.url(req, res), '\n',
+    'Status: ', tokens.status(req, res), '\n',
+    'Content length: ', tokens.res(req, res, 'content-length'), '\n',
+    'Response time: ', tokens['response-time'](req, res), 'ms', '\n',
+    'Body: ', tokens['data-sent'](req, res), '\n',
+    '---'
   ].join('')
 }))
 
@@ -71,7 +71,7 @@ app.put('/api/people/:id', (request, response, next) => {
 
 app.delete('/api/people/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -95,7 +95,7 @@ const unknownEndpoint = (request, response) => {
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
-  console.error("Error:", error.message)
+  console.error('Error:', error.message)
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
