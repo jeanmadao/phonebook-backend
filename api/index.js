@@ -29,22 +29,18 @@ app.get('/api/people', (request, response) => {
   })
 })
 
-app.post('/api/people', (request, response) => {
+app.post('/api/people', (request, response, next) => {
   const body = request.body
 
-  if (body.name && body.number) {
-    const person = new Person({
-      name: body.name,
-      number: body.number
-    })
-    person.save().then(savedPerson => {
+  const person = new Person({
+    name: body.name,
+    number: body.number
+  })
+  person.save()
+    .then(savedPerson => {
       response.json(savedPerson)
     })
-  } else {
-    response.status(400).json({
-      error: 'name and/or number missing'
-    })
-  }
+    .catch(error => next(error))
 })
 
 app.get('/api/people/:id', (request, response, next) => {
@@ -59,22 +55,21 @@ app.get('/api/people/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.put('/api/people/:id', (request, response) => {
-  const body = request.body
+app.put('/api/people/:id', (request, response, next) => {
+  const { name, number } = request.body
 
-  const person = {
-    name: body.name,
-    number: body.number,
-  }
-
-  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+  Person.findByIdAndUpdate(
+    request.params.id,
+    { name, number },
+    { new: true, runValidators: true, context: 'query' }
+  )
     .then(updatedPerson => {
       response.json(updatedPerson)
     })
     .catch(error => next(error))
 })
 
-app.delete('/api/people/:id', (request, response) => {
+app.delete('/api/people/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
     .then(result => {
       response.status(204).end()
@@ -104,6 +99,8 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
   }
 
   next(error)
